@@ -5,7 +5,7 @@ Public (non-PHI) Help Desk repo to host issues, FAQs, knowledgebases and tasks t
 
 Welcome to the Diabetes Research Hub Help Desk. This repository is dedicated to managing and resolving user issues using **GitHub Discussions** and **GitHub Issues** as the backend for tracking and organizing tasks.
 
-<mark>NOTE: When asking for assistance please do not include any _Protected Health Information_ (PHI).</mark> and Medical Record Numbers that do not expose patient identity are _not_ considered **PHI** so MRNs may be shared if they do not contain patient identity.
+<mark>NOTE: When asking for assistance please do not include any _Protected Health Information_ (PHI).</mark> Medical Record Numbers that do not expose patient identity are _not_ considered **PHI** so MRNs may be shared if they do not contain patient identity.
 
 The Diabetes Research Hub application provides a comprehensive system for displaying research strudies and handling support requests, ensuring that user problems are addressed efficiently and effectively.
 
