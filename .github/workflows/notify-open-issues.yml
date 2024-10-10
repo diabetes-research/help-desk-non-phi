@@ -1,0 +1,57 @@
+name: Notify on Issue or Discussion Creation
+
+on:
+  issues:
+    types: [opened]
+  discussion:
+    types: [created]
+    
+permissions:
+  contents: read
+  issues: read
+  discussions: read
+  
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Send Email Notification for Issues
+      if: github.event_name == 'issues'
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.mailgun.org
+        server_port: 587
+        username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
+        password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
+        subject: "New Help Desk non-PHI Issue: ${{ github.event.issue.title }}"
+        to: help+new-help-desk-non-phi-item@techbd.org
+        from: "Tech by Design non-PHI Help Desk Notification <no-reply@tx.techbd.org>"
+        body: |
+          A new issue has been created in the repository:
+          
+            Issue Title: ${{ github.event.issue.title }}
+            Issue URL: ${{ github.event.issue.html_url }}
+          
+          Description:
+            ${{ github.event.issue.body }}
+
+    - name: Send Email Notification for Discussions
+      if: github.event_name == 'discussion'
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.mailgun.org
+        server_port: 587
+        username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
+        password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
+        subject: "New Help Desk non-PHI Discussion: ${{ github.event.discussion.title }}"
+        to: help+new-help-desk-non-phi-item@techbd.org
+        from: "Tech by Design non-PHI Help Desk Notification <no-reply@tx.techbd.org>"
+        body: |
+          A new discussion has been created in the repository:
+          
+            Discussion Title: ${{ github.event.discussion.title }}
+            Discussion URL: ${{ github.event.discussion.html_url }}
+          
+          Description:
+            ${{ github.event.discussion.body }}

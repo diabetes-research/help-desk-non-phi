@@ -1,0 +1,75 @@
+name: Notify Inactive Issues and Discussions
+on:
+    schedule:
+      - cron: '0 1,13 * * *'
+      
+permissions:
+  contents: read
+  issues: read
+  discussions: read
+  
+jobs:
+  notify_inactive_issues_and_discussions:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Fetch open issues
+      id: fetch_issues
+      run: |
+        echo "Fetching open issues from GitHub API..."
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/issues?state=open" \
+          -o issues_raw.json
+        cat issues_raw.json
+
+    - name: Fetch open discussions
+      id: fetch_discussions
+      run: |
+        echo "Fetching open discussions from GitHub API..."
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/discussions?state=open" \
+          -o discussions_raw.json
+        cat discussions_raw.json
+
+    - name: Filter inactive issues and discussions
+      id: filter_issues_and_discussions
+      run: |
+        echo "Filtering inactive issues and discussions..."
+        
+        # Filter inactive issues (older than 12 hours)
+        inactive_issues=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200) | "Issue URL: \(.html_url)\nIssue Title: \(.title)"] | join("\n\n")' issues_raw.json)
+        
+        # Filter inactive discussions (older than 12 hours)
+        inactive_discussions=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200 and .state == "open" and (.answer_html_url == null or .answer_html_url == "")) | "Discussion URL: \(.html_url)\nDiscussion Title: \(.title)"] | join("\n\n")' discussions_raw.json)        
+        # Combine issues and discussions into one message
+        combined_inactive=$(printf "%s\n\n%s" "$inactive_issues" "$inactive_discussions")
+        
+        if [ -z "$combined_inactive" ]; then
+          echo "No inactive issues or discussions found."
+          echo "SEND_EMAIL=false" >> $GITHUB_ENV
+        else
+          echo "$combined_inactive" > inactive_issues_and_discussions.txt
+          echo "INACTIVE_ITEMS<<EOF" >> $GITHUB_ENV
+          echo "$combined_inactive" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "SEND_EMAIL=true" >> $GITHUB_ENV
+        fi
+
+    - name: Send email if there are inactive issues or discussions
+      if: env.SEND_EMAIL == 'true'
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.mailgun.org
+        server_port: 587
+        username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
+        password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
+        subject: "Ignored Help Desk non-PHI Issues Notification"
+        to: help+ignored-help-desk-non-phi-item@techbd.org
+        from: "Tech by Design non-PHI Help Desk Notification <no-reply@tx.techbd.org>"
+        body: |
+          The following issues and discussions have been inactive for more than 12 hours:
+          
+          ${{ env.INACTIVE_ITEMS }}
