@@ -67,8 +67,8 @@ jobs:
         username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
         password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
         subject: "Ignored Help Desk non-PHI Issues Notification"
-        to: help+ignored-help-desk-non-phi-item@techbd.org
-        from: "Tech by Design non-PHI Help Desk Notification <no-reply@tx.techbd.org>"
+        to: resul-raveendran@netspective.in
+        from: "no-reply@drh.diabetestechnology.org"
         body: |
           The following issues and discussions have been inactive for more than 12 hours:
           
