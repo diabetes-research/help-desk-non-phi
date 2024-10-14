@@ -45,7 +45,7 @@ jobs:
         username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
         password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
         subject: "New Help Desk non-PHI Discussion: ${{ github.event.discussion.title }}"
-        to: resul-raveendran@netspective.in
+        to: researchhub-help+new-help-desk-non-phi-item@diabetestechnology.org
         from: "no-reply@drh.diabetestechnology.org"
         body: |
           A new discussion has been created in the repository:
