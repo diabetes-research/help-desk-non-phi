@@ -39,11 +39,14 @@ jobs:
       run: |
         echo "Filtering inactive issues and discussions..."
         
-        # Filter inactive issues (older than 12 hours)
-        inactive_issues=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200) | "Issue URL: \(.html_url)\nIssue Title: \(.title)"] | join("\n\n")' issues_raw.json)
+         # Filter inactive issues (older than 12 hours)
+        inactive_issues=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200) | 
+          "Date of issue created: \(.created_at | fromdateiso8601 | strftime("%d-%b-%Y:%H:%M:%S"))\nIssue URL: \(.html_url)\nIssue Title: \(.title)"] | join("\n\n")' issues_raw.json)
         
         # Filter inactive discussions (older than 12 hours)
-        inactive_discussions=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200 and .state == "open" and (.answer_html_url == null or .answer_html_url == "")) | "Discussion URL: \(.html_url)\nDiscussion Title: \(.title)"] | join("\n\n")' discussions_raw.json)        
+        inactive_discussions=$(jq -r '[.[] | select((now - (.updated_at | fromdateiso8601)) > 43200 and .state == "open" and (.answer_html_url == null or .answer_html_url == "")) | 
+          "Date of discussion created: \(.created_at | fromdateiso8601 | strftime("%d-%b-%Y:%H:%M:%S"))\nDiscussion URL: \(.html_url)\nDiscussion Title: \(.title)"] | join("\n\n")' discussions_raw.json)
+          
         # Combine issues and discussions into one message
         combined_inactive=$(printf "%s\n\n%s" "$inactive_issues" "$inactive_discussions")
         
@@ -66,7 +69,7 @@ jobs:
         server_port: 587
         username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
         password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
-        subject: "Ignored Help Desk non-PHI Issues Notification"
+        subject: "[DRH] Ignored Help Desk non-PHI Issues Notification"
         to: researchhub-help+ignored-help-desk-non-phi-item@diabetestechnology.org
         from: "no-reply@drh.diabetestechnology.org"
         body: |
