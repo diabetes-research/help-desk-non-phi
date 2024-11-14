@@ -44,7 +44,7 @@ jobs:
         server_port: 587
         username: ${{ secrets.MAILGUN_SMTP_USERNAME }}
         password: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
-        subject: "New Help Desk non-PHI Discussion: ${{ github.event.discussion.title }}"
+        subject: "[DRH] New Help Desk non-PHI Discussion: ${{ github.event.discussion.title }}"
         to: researchhub-help+new-help-desk-non-phi-item@diabetestechnology.org
         from: "no-reply@drh.diabetestechnology.org"
         body: |
